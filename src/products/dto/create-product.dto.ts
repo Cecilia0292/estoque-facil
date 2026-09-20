@@ -14,8 +14,8 @@ export class CreateProductDto {
 
     @IsOptional()
     @IsString()
-    @Matches(/^\d+$/, { 
-        message: 'O código de barras deve conter apenas números.' 
+    @Matches(/^\d{13}$/, { 
+        message: 'O código de barras deve conter exatamente 13 números.' 
     })
     barcode?: string;
 
@@ -25,7 +25,7 @@ export class CreateProductDto {
 
     @IsOptional()
     @IsInt()
-    @Min(0)
+    @Min(1)
     stockQuantity?: number;
 
     @IsEnum(ProductCategory, {
