@@ -1,4 +1,4 @@
-import {IsDateString, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Min} from "class-validator";
+import {IsDateString, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min} from "class-validator";
 
 export enum ProductCategory {
   ELECTRONICS = 'ELETRÔNICOS',
@@ -25,7 +25,8 @@ export class CreateProductDto {
 
     @IsOptional()
     @IsInt()
-    @Min(1)
+    @Min(0)
+    @Max(999999)
     stockQuantity?: number;
 
     @IsEnum(ProductCategory, {
