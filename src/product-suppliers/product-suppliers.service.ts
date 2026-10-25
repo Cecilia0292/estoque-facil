@@ -24,7 +24,7 @@ export class ProductSuppliersService {
     private readonly suppliersService: SuppliersService,
   ) {}
 
-  create(createProductSupplierDto: CreateProductSupplierDto) {
+  async create(createProductSupplierDto: CreateProductSupplierDto) {
     const { productId, supplierId } = createProductSupplierDto;
 
     const product = this.productsService.findOne(productId);
@@ -32,7 +32,7 @@ export class ProductSuppliersService {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    const supplier = this.suppliersService.findOne(supplierId);
+    const supplier = await this.suppliersService.findOne(supplierId);
     if (!supplier) {
       throw new NotFoundException('Fornecedor não encontrado');
     }
@@ -64,31 +64,33 @@ export class ProductSuppliersService {
 
   }
 
-  findSuppliersByProduct(productId: number) {
+  async findSuppliersByProduct(productId: number) {
     const product = this.productsService.findOne(productId);
     
     if (!product) {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    return this.productSuppliers
-    .filter((association) => association.productId === productId)
-    .map((association) => {
-      const supplier = this.suppliersService.findOne(
-        association.supplierId
-      );
+    return Promise.all(
+      this.productSuppliers
+        .filter((association) => association.productId === productId)
+        .map(async (association) => {
+          const supplier = await this.suppliersService.findOne(
+            association.supplierId
+          );
 
-      if (!supplier) {
-        throw new NotFoundException('Fornecedor não encontrado');
-      }
+          if (!supplier) {
+            throw new NotFoundException('Fornecedor não encontrado');
+          }
 
-      return {
-        associationId: association.id,
-        supplierId: supplier.id,
-        name: supplier.name,
-        cnpj: supplier.cnpj,
-      };
-    });
+          return {
+            associationId: association.id,
+            supplierId: supplier.id,
+            name: supplier.name,
+            cnpj: supplier.cnpj,
+          };
+        }),
+    );
   }
 
   findAll() {
@@ -105,7 +107,7 @@ export class ProductSuppliersService {
     return association;
   }
 
-  update(
+  async update(
     id: number, updateProductSupplierDto: UpdateProductSupplierDto,
   ) {
     const associationIndex = this.productSuppliers.findIndex(
@@ -119,12 +121,12 @@ export class ProductSuppliersService {
     const productId = updateProductSupplierDto.productId ?? currentAssociation.productId;
     const supplierId = updateProductSupplierDto.supplierId ?? currentAssociation.supplierId;
 
-    const product = this.productsService.findOne(productId);
+    const product =this.productsService.findOne(productId);
     if (!product) {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    const supplier = this.suppliersService.findOne(supplierId);
+    const supplier = await this.suppliersService.findOne(supplierId);
     if (!supplier) {
       throw new NotFoundException('Fornecedor não encontrado');
     }
